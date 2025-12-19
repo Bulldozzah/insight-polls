@@ -48,16 +48,14 @@ export default function Poll() {
     );
   }
 
-  const requiredDemographics = (poll.required_demographics as string[]) || [];
+  const requiresDemographics = poll.required_demographics === true;
   const hasVoted = !!userVote;
   const isActive = poll.status === "active";
 
   const checkDemographicsMissing = () => {
-    if (requiredDemographics.length === 0) return false;
-    return requiredDemographics.some((field) => {
-      const value = profile?.[field as keyof Profile];
-      return !value;
-    });
+    if (!requiresDemographics) return false;
+    // Check if any common demographic fields are missing
+    return !profile?.age_range || !profile?.location || !profile?.employment_status;
   };
 
   const demographicsMissing = checkDemographicsMissing() && !demographicsComplete;
@@ -121,7 +119,7 @@ export default function Poll() {
               ) : demographicsMissing ? (
                 <DemographicsForm
                   profile={profile}
-                  requiredFields={requiredDemographics}
+                  requiredFields={["age_range", "location", "employment_status"]}
                   onComplete={() => {
                     refetchProfile();
                     setDemographicsComplete(true);

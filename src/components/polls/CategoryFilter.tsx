@@ -9,12 +9,12 @@ interface CategoryFilterProps {
 
 const categories: (PollCategory | null)[] = [
   null,
-  "educational",
-  "political",
-  "market_research",
-  "social",
-  "economical",
-  "corporate",
+  "politics",
+  "entertainment",
+  "sports",
+  "technology",
+  "lifestyle",
+  "other",
 ];
 
 export function CategoryFilter({ selected, onChange }: CategoryFilterProps) {

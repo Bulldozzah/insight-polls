@@ -14,7 +14,220 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      poll_options: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_text: string
+          poll_id: string
+          vote_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_text: string
+          poll_id: string
+          vote_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_text?: string
+          poll_id?: string
+          vote_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          category: Database["public"]["Enums"]["poll_category"]
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          max_selections: number | null
+          poll_type: Database["public"]["Enums"]["poll_type"]
+          required_demographics: boolean | null
+          start_date: string | null
+          status: Database["public"]["Enums"]["poll_status"]
+          title: string
+          total_votes: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["poll_category"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          max_selections?: number | null
+          poll_type?: Database["public"]["Enums"]["poll_type"]
+          required_demographics?: boolean | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["poll_status"]
+          title: string
+          total_votes?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["poll_category"]
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          max_selections?: number | null
+          poll_type?: Database["public"]["Enums"]["poll_type"]
+          required_demographics?: boolean | null
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["poll_status"]
+          title?: string
+          total_votes?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age_range: Database["public"]["Enums"]["age_range"] | null
+          created_at: string | null
+          email: string | null
+          employment_status:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          full_name: string | null
+          id: string
+          job_title: string | null
+          location: string | null
+          occupation_category: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          age_range?: Database["public"]["Enums"]["age_range"] | null
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          full_name?: string | null
+          id: string
+          job_title?: string | null
+          location?: string | null
+          occupation_category?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          age_range?: Database["public"]["Enums"]["age_range"] | null
+          created_at?: string | null
+          email?: string | null
+          employment_status?:
+            | Database["public"]["Enums"]["employment_status"]
+            | null
+          full_name?: string | null
+          id?: string
+          job_title?: string | null
+          location?: string | null
+          occupation_category?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vote_answers: {
+        Row: {
+          created_at: string | null
+          id: string
+          option_id: string
+          vote_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          option_id: string
+          vote_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          option_id?: string
+          vote_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vote_answers_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vote_answers_vote_id_fkey"
+            columns: ["vote_id"]
+            isOneToOne: false
+            referencedRelation: "votes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      votes: {
+        Row: {
+          created_at: string | null
+          id: string
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -37,7 +250,15 @@ export type Database = {
       update_poll_statuses: { Args: never; Returns: undefined }
     }
     Enums: {
+      age_range: "18-26" | "27-35" | "36-45" | "46-55" | "56-65" | "65+"
       app_role: "admin" | "moderator" | "user"
+      employment_status:
+        | "employed"
+        | "self_employed"
+        | "unemployed"
+        | "student"
+        | "retired"
+        | "other"
       poll_category:
         | "politics"
         | "entertainment"
@@ -46,6 +267,7 @@ export type Database = {
         | "lifestyle"
         | "other"
       poll_status: "draft" | "active" | "scheduled" | "closed"
+      poll_type: "single_choice" | "multiple_choice" | "yes_no"
       results_visibility: "live" | "after_close"
     }
     CompositeTypes: {
@@ -174,7 +396,16 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      age_range: ["18-26", "27-35", "36-45", "46-55", "56-65", "65+"],
       app_role: ["admin", "moderator", "user"],
+      employment_status: [
+        "employed",
+        "self_employed",
+        "unemployed",
+        "student",
+        "retired",
+        "other",
+      ],
       poll_category: [
         "politics",
         "entertainment",
@@ -184,6 +415,7 @@ export const Constants = {
         "other",
       ],
       poll_status: ["draft", "active", "scheduled", "closed"],
+      poll_type: ["single_choice", "multiple_choice", "yes_no"],
       results_visibility: ["live", "after_close"],
     },
   },

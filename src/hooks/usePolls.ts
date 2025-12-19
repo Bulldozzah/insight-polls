@@ -11,15 +11,15 @@ export function usePolls(status?: PollStatus, category?: PollCategory) {
         .order("created_at", { ascending: false });
 
       if (status) {
-        query = query.eq("status", status);
+        query = query.eq("status", status as any);
       }
       if (category) {
-        query = query.eq("category", category);
+        query = query.eq("category", category as any);
       }
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Poll[];
+      return (data || []) as unknown as Poll[];
     },
   });
 }
@@ -35,7 +35,7 @@ export function usePoll(pollId: string | undefined) {
         .eq("id", pollId)
         .maybeSingle();
       if (error) throw error;
-      return data as Poll | null;
+      return data as unknown as Poll | null;
     },
     enabled: !!pollId,
   });
@@ -52,7 +52,7 @@ export function usePollOptions(pollId: string | undefined) {
         .eq("poll_id", pollId)
         .order("created_at", { ascending: true });
       if (error) throw error;
-      return data as PollOption[];
+      return (data || []) as unknown as PollOption[];
     },
     enabled: !!pollId,
   });
@@ -120,9 +120,9 @@ interface CreatePollInput {
   poll_type: PollType;
   category: PollCategory;
   status: PollStatus;
-  required_demographics?: string[];
+  required_demographics?: boolean;
   max_selections?: number;
-  closes_at?: string;
+  end_date?: string;
   options: string[];
 }
 
@@ -140,18 +140,19 @@ export function useCreatePoll() {
         .insert({
           title: input.title,
           description: input.description,
-          poll_type: input.poll_type,
-          category: input.category,
-          status: input.status,
-          required_demographics: input.required_demographics || [],
+          poll_type: input.poll_type as any,
+          category: input.category as any,
+          status: input.status as any,
+          required_demographics: input.required_demographics || false,
           max_selections: input.max_selections,
-          closes_at: input.closes_at,
+          end_date: input.end_date,
           created_by: user.id,
-        })
+        } as any)
         .select()
         .single();
 
       if (pollError) throw pollError;
+      if (!poll) throw new Error("Failed to create poll");
 
       // Create options
       const optionsToInsert = input.poll_type === "yes_no"
@@ -160,11 +161,11 @@ export function useCreatePoll() {
 
       const { error: optionsError } = await supabase
         .from("poll_options")
-        .insert(optionsToInsert);
+        .insert(optionsToInsert as any);
 
       if (optionsError) throw optionsError;
 
-      return poll;
+      return poll as unknown as Poll;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["polls"] });
@@ -179,13 +180,13 @@ export function useUpdatePoll() {
     mutationFn: async ({ id, ...updates }: Partial<Poll> & { id: string }) => {
       const { data, error } = await supabase
         .from("polls")
-        .update(updates)
+        .update(updates as any)
         .eq("id", id)
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+      return data as unknown as Poll;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["polls"] });
