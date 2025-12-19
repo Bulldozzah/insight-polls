@@ -2,16 +2,17 @@ import { supabase } from "@/integrations/supabase/client";
 
 export { supabase };
 
-// Type definitions for our app
+// Type definitions matching the database schema
 export type PollType = "single_choice" | "multiple_choice" | "yes_no";
-export type PollStatus = "draft" | "active" | "closed";
-export type PollCategory = "educational" | "political" | "market_research" | "social" | "economical" | "corporate";
-export type AppRole = "admin" | "user";
+export type PollStatus = "draft" | "active" | "scheduled" | "closed";
+export type PollCategory = "politics" | "entertainment" | "sports" | "technology" | "lifestyle" | "other";
+export type AppRole = "admin" | "moderator" | "user";
 export type AgeRange = "18-26" | "27-35" | "36-45" | "46-55" | "56-65" | "65+";
 export type EmploymentStatus = "employed" | "self_employed" | "unemployed" | "student" | "retired" | "other";
 
 export interface Profile {
   id: string;
+  email: string | null;
   full_name: string | null;
   age_range: AgeRange | null;
   location: string | null;
@@ -29,18 +30,21 @@ export interface Poll {
   poll_type: PollType;
   category: PollCategory;
   status: PollStatus;
-  required_demographics: string[];
+  required_demographics: boolean;
   max_selections: number | null;
   created_by: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  total_votes: number;
   created_at: string;
   updated_at: string;
-  closes_at: string | null;
 }
 
 export interface PollOption {
   id: string;
   poll_id: string;
   option_text: string;
+  vote_count: number;
   created_at: string;
 }
 
@@ -59,12 +63,12 @@ export interface VoteAnswer {
 }
 
 export const CATEGORY_LABELS: Record<PollCategory, string> = {
-  educational: "Educational",
-  political: "Political",
-  market_research: "Market Research",
-  social: "Social",
-  economical: "Economical",
-  corporate: "Corporate",
+  politics: "Politics",
+  entertainment: "Entertainment",
+  sports: "Sports",
+  technology: "Technology",
+  lifestyle: "Lifestyle",
+  other: "Other",
 };
 
 export const POLL_TYPE_LABELS: Record<PollType, string> = {

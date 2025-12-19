@@ -12,7 +12,7 @@ export function useProfile(userId: string | undefined) {
         .eq("id", userId)
         .maybeSingle();
       if (error) throw error;
-      return data as Profile | null;
+      return data as unknown as Profile | null;
     },
     enabled: !!userId,
   });
@@ -37,16 +37,16 @@ export function useUpdateProfile() {
 
       const { data, error } = await supabase
         .from("profiles")
-        .update(input)
+        .update(input as any)
         .eq("id", user.id)
         .select()
         .single();
 
       if (error) throw error;
-      return data;
+      return data as unknown as Profile;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["profile", data.id] });
+      queryClient.invalidateQueries({ queryKey: ["profile", data?.id] });
     },
   });
 }

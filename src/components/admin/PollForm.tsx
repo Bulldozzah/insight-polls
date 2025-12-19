@@ -24,8 +24,8 @@ const pollFormSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),
   description: z.string().max(1000).optional(),
   poll_type: z.enum(["single_choice", "multiple_choice", "yes_no"]),
-  category: z.enum(["educational", "political", "market_research", "social", "economical", "corporate"]),
-  status: z.enum(["draft", "active", "closed"]),
+  category: z.enum(["politics", "entertainment", "sports", "technology", "lifestyle", "other"]),
+  status: z.enum(["draft", "active", "scheduled", "closed"]),
   max_selections: z.number().min(1).optional(),
 });
 
@@ -36,17 +36,9 @@ interface PollFormProps {
   onCancel: () => void;
 }
 
-const demographicOptions = [
-  { id: "age_range", label: "Age Range" },
-  { id: "location", label: "Location" },
-  { id: "job_title", label: "Job Title" },
-  { id: "occupation_category", label: "Occupation Category" },
-  { id: "employment_status", label: "Employment Status" },
-];
-
 export function PollForm({ onSuccess, onCancel }: PollFormProps) {
   const [options, setOptions] = useState<string[]>(["", ""]);
-  const [requiredDemographics, setRequiredDemographics] = useState<string[]>([]);
+  const [requireDemographics, setRequireDemographics] = useState(false);
   const createPoll = useCreatePoll();
 
   const {
@@ -59,7 +51,7 @@ export function PollForm({ onSuccess, onCancel }: PollFormProps) {
     resolver: zodResolver(pollFormSchema),
     defaultValues: {
       poll_type: "single_choice",
-      category: "social",
+      category: "other",
       status: "draft",
     },
   });
@@ -82,14 +74,6 @@ export function PollForm({ onSuccess, onCancel }: PollFormProps) {
     setOptions(newOptions);
   };
 
-  const toggleDemographic = (id: string, checked: boolean) => {
-    if (checked) {
-      setRequiredDemographics([...requiredDemographics, id]);
-    } else {
-      setRequiredDemographics(requiredDemographics.filter((d) => d !== id));
-    }
-  };
-
   const onSubmit = async (data: PollFormData) => {
     const validOptions = options.filter((o) => o.trim() !== "");
     
@@ -106,7 +90,7 @@ export function PollForm({ onSuccess, onCancel }: PollFormProps) {
         category: data.category,
         status: data.status,
         max_selections: data.max_selections,
-        required_demographics: requiredDemographics,
+        required_demographics: requireDemographics,
         options: validOptions,
       });
       toast.success("Poll created successfully!");
@@ -195,6 +179,7 @@ export function PollForm({ onSuccess, onCancel }: PollFormProps) {
                 <SelectContent>
                   <SelectItem value="draft">Draft</SelectItem>
                   <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="scheduled">Scheduled</SelectItem>
                   <SelectItem value="closed">Closed</SelectItem>
                 </SelectContent>
               </Select>
@@ -246,24 +231,15 @@ export function PollForm({ onSuccess, onCancel }: PollFormProps) {
             </div>
           )}
 
-          <div className="space-y-3">
-            <Label>Required Demographics (optional)</Label>
-            <div className="grid grid-cols-2 gap-3">
-              {demographicOptions.map((demo) => (
-                <div key={demo.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={demo.id}
-                    checked={requiredDemographics.includes(demo.id)}
-                    onCheckedChange={(checked) =>
-                      toggleDemographic(demo.id, checked as boolean)
-                    }
-                  />
-                  <Label htmlFor={demo.id} className="font-normal cursor-pointer">
-                    {demo.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="require_demographics"
+              checked={requireDemographics}
+              onCheckedChange={(checked) => setRequireDemographics(checked as boolean)}
+            />
+            <Label htmlFor="require_demographics" className="font-normal cursor-pointer">
+              Require demographic information to vote
+            </Label>
           </div>
 
           <div className="flex gap-3 pt-4">

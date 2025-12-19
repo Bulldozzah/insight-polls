@@ -20,7 +20,7 @@ export function useSubmitVote() {
         .insert({
           poll_id: pollId,
           user_id: user.id,
-        })
+        } as any)
         .select()
         .single();
 
@@ -30,6 +30,7 @@ export function useSubmitVote() {
         }
         throw voteError;
       }
+      if (!vote) throw new Error("Failed to create vote");
 
       // Create vote answers
       const answersToInsert = optionIds.map((optionId) => ({
@@ -39,7 +40,7 @@ export function useSubmitVote() {
 
       const { error: answersError } = await supabase
         .from("vote_answers")
-        .insert(answersToInsert);
+        .insert(answersToInsert as any);
 
       if (answersError) throw answersError;
 
